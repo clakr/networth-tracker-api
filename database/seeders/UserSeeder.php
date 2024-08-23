@@ -19,11 +19,19 @@ class UserSeeder extends Seeder
                 'email' => 'test@admin.com',
             ]);
 
+        User::factory(9)
+            ->admin()
+            ->create();
+
         User::factory()
             ->user()
             ->create([
                 'name' => 'Test User',
                 'email' => 'test@user.com',
             ]);
+
+        User::factory(9)
+            ->user()
+            ->create();
     }
 }
