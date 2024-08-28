@@ -65,6 +65,6 @@ class UserPolicy
 
     public function viewPaginated(User $user): bool
     {
-        return $user->role === UserRole::ADMIN;
+        return $user->role->value === UserRole::ADMIN->value;
     }
 }

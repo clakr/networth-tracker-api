@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
@@ -13,9 +14,9 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        Gate::authorize('viewPaginated', User::class);
+        Gate::authorize('viewPaginated', $request->user());
 
         return UserResource::collection(User::paginate())
             ->additional(['message' => 'SUCCESS: Get Users']);
