@@ -25,7 +25,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users'],
-            'role' => ['required', 'string', UserRole::validationRules()],
+            'role' => ['string', UserRole::validationRules()],
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -27,6 +28,8 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        Gate::authorize('create', $request->user());
+
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -34,7 +37,10 @@ class UserController extends Controller
             'password' => $request->input('password', 'password'),
         ]);
 
-        return new UserResource($user);
+        return response([
+            'data' => new UserResource($user),
+            'message' => 'SUCCESS: Create User',
+        ], Response::HTTP_CREATED);
     }
 
     /**

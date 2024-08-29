@@ -24,14 +24,12 @@ class UserSeeder extends Seeder
             ->create();
 
         User::factory()
-            ->user()
             ->create([
                 'name' => 'Test User',
                 'email' => 'test@user.com',
             ]);
 
         User::factory(9)
-            ->user()
             ->create();
     }
 }
