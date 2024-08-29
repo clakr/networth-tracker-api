@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
-    //
 
     const PAGINATION_KEYS = [
         'links' => [
