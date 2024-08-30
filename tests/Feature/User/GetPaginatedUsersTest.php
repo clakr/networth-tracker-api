@@ -2,6 +2,13 @@
 
 use App\Models\User;
 
+/**
+ * CASES:
+ * - [x] unauthenticated users
+ * - [x] users with user role
+ * - [x] admin
+ * - [x] second set of data
+ */
 describe('cannot get users', function () {
     test('without authentication', function () {
         $response = $this->get('/api/users');

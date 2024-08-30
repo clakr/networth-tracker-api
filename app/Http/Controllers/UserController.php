@@ -17,7 +17,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        Gate::authorize('viewPaginated', $request->user());
+        Gate::authorize('viewAny', $request->user());
 
         return UserResource::collection(User::paginate())
             ->additional(['message' => 'SUCCESS: Get Users']);
@@ -46,7 +46,12 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user);
+        Gate::authorize('view', $user);
+
+        return response([
+            'data' => new UserResource($user),
+            'message' => 'SUCCESS: Get User',
+        ], Response::HTTP_OK);
     }
 
     /**
