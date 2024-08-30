@@ -23,9 +23,19 @@ describe('cannot update user', function () {
             'role' => $user->role,
         ]);
 
-        $this->assertGuest();
-
         $response->assertUnauthorized();
+
+        $this->assertGuest()
+            ->assertDatabaseHas('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ])
+            ->assertDatabaseMissing('users', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]);
     });
 
     test('with user role', function () {
@@ -39,57 +49,111 @@ describe('cannot update user', function () {
                 'role' => $user->role,
             ]);
 
-        $this->assertAuthenticated();
-
         $response->assertForbidden();
+
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ])
+            ->assertDatabaseMissing('users', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]);
     });
 
     test('with empty data', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
 
-        $response = $this->actingAs($admin)->putJson("/api/users/{$user->id}");
+        $existingUser = User::factory()->create();
+
+        $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}");
 
         $response->assertJsonValidationErrors(['name', 'email', 'role']);
+
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ]);
     });
 
     test('with invalid email', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
 
-        $response = $this->actingAs($admin)->putJson("/api/users/{$user->id}", [
+        $existingUser = User::factory()->create();
+        $user = User::factory()->make();
+
+        $requestBody = [
             'name' => $user->name,
             'email' => 'THIS IS INVALID EMAIL',
             'role' => $user->role,
-        ]);
+        ];
+
+        $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}", $requestBody);
 
         $response->assertJsonValidationErrorFor('email');
+
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ])
+            ->assertDatabaseMissing('users', $requestBody);
     });
 
     test('with not unique email', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
 
-        $response = $this->actingAs($admin)->putJson("/api/users/{$user->id}", [
+        $existingUser = User::factory()->create();
+        $user = User::factory()->make();
+
+        $requestBody = [
             'name' => $user->name,
             'email' => $admin->email,
             'role' => $user->role,
-        ]);
+        ];
+
+        $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}", $requestBody);
 
         $response->assertJsonValidationErrorFor('email');
+
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ])
+            ->assertDatabaseMissing('users', $requestBody);
     });
 
     test('with invalid role value', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
 
-        $response = $this->actingAs($admin)->putJson("/api/users/{$user->id}", [
+        $existingUser = User::factory()->create();
+        $user = User::factory()->make();
+
+        $requestBody = [
             'name' => $user->name,
             'email' => $user->email,
             'role' => 'SUPERADMIN',
-        ]);
+        ];
+
+        $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}", $requestBody);
 
         $response->assertJsonValidationErrorFor('role');
+
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ])
+            ->assertDatabaseMissing('users', $requestBody);
     });
 });
 
@@ -114,10 +178,12 @@ describe('can update user', function () {
             ])
             ->assertJsonFragment(['message' => 'SUCCESS: Update User']);
 
-        $this->assertDatabaseMissing('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
-        ])->assertDatabaseHas('users', $requestBody);
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', $requestBody)
+            ->assertDatabaseMissing('users', [
+                'name' => $existingUser->name,
+                'email' => $existingUser->email,
+                'role' => $existingUser->role,
+            ]);
     });
 });

@@ -15,9 +15,9 @@ test('cannot fetch users without authentication', function () {
 
     $response = $this->getJson("/api/users/{$user->id}");
 
-    $this->assertGuest();
-
     $response->assertUnauthorized();
+
+    $this->assertGuest();
 });
 
 test('users cannot fetch other users data', function () {
@@ -26,9 +26,9 @@ test('users cannot fetch other users data', function () {
 
     $response = $this->actingAs($user)->getJson("/api/users/{$otherUser->id}");
 
-    $this->assertAuthenticated();
-
     $response->assertForbidden();
+
+    $this->assertAuthenticated();
 });
 
 test('users can fetch their own data', function () {
@@ -36,12 +36,14 @@ test('users can fetch their own data', function () {
 
     $response = $this->actingAs($user)->getJson("/api/users/{$user->id}");
 
-    $this->assertAuthenticated();
+    $response->assertOk()
+        ->assertExactJsonStructure([
+            'data' => self::USER_RESOURCE_KEYS,
+            'message',
+        ])
+        ->assertJsonFragment(['message' => 'SUCCESS: Get User']);
 
-    $response->assertOk()->assertExactJsonStructure([
-        'data' => self::USER_RESOURCE_KEYS,
-        'message',
-    ])->assertJsonFragment(['message' => 'SUCCESS: Get User']);
+    $this->assertAuthenticated();
 });
 
 test('admins can fetch any users data', function () {
@@ -51,10 +53,12 @@ test('admins can fetch any users data', function () {
 
     $response = $this->actingAs($admin)->getJson("/api/users/{$user->id}");
 
-    $this->assertAuthenticated();
+    $response->assertOk()
+        ->assertExactJsonStructure([
+            'data' => self::USER_RESOURCE_KEYS,
+            'message',
+        ])
+        ->assertJsonFragment(['message' => 'SUCCESS: Get User']);
 
-    $response->assertOk()->assertExactJsonStructure([
-        'data' => self::USER_RESOURCE_KEYS,
-        'message',
-    ])->assertJsonFragment(['message' => 'SUCCESS: Get User']);
+    $this->assertAuthenticated();
 });

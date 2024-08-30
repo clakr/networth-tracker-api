@@ -13,9 +13,9 @@ describe('cannot get users', function () {
     test('without authentication', function () {
         $response = $this->get('/api/users');
 
-        $this->assertGuest();
-
         $response->assertUnauthorized();
+
+        $this->assertGuest();
     });
 
     test('with user role', function () {
@@ -23,9 +23,9 @@ describe('cannot get users', function () {
 
         $response = $this->actingAs($user)->get('/api/users');
 
-        $this->assertAuthenticated();
-
         $response->assertForbidden();
+
+        $this->assertAuthenticated();
     });
 });
 
@@ -38,8 +38,6 @@ describe('can get users', function () {
         $response = $this->actingAs($admin)->get('/api/users');
 
         // self in this context refers to the /tests/TestCase class
-        $this->assertAuthenticated();
-
         $response->assertOk()
             ->assertExactJsonStructure([
                 'message',
@@ -48,6 +46,8 @@ describe('can get users', function () {
             ])
             ->assertJsonFragment(['message' => 'SUCCESS: Get Users'])
             ->assertJsonCount(10, 'data'); // User model's `$perPage` value
+
+        $this->assertAuthenticated();
     });
 });
 
@@ -59,4 +59,6 @@ test('can get next set of users', function () {
     $response = $this->actingAs($admin)->get('/api/users?page=2');
 
     $response->assertJsonCount(6, 'data'); // User model's `$perPage` value + created admin
+
+    $this->assertAuthenticated();
 });

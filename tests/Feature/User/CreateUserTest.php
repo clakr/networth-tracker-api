@@ -22,9 +22,10 @@ describe('cannot create user', function () {
             'email' => $user->email,
         ]);
 
-        $this->assertGuest();
-
         $response->assertUnauthorized();
+
+        $this->assertGuest()
+            ->assertModelMissing($user);
     });
 
     test('with user role', function () {
@@ -36,9 +37,10 @@ describe('cannot create user', function () {
                 'email' => $user->email,
             ]);
 
-        $this->assertAuthenticated();
-
         $response->assertForbidden();
+
+        $this->assertAuthenticated()
+            ->assertModelMissing($user);
     });
 
     test('with empty data', function () {
@@ -47,11 +49,13 @@ describe('cannot create user', function () {
         $response = $this->actingAs($admin)->postJson('/api/users');
 
         $response->assertJsonValidationErrors(['name', 'email']);
+
+        $this->assertAuthenticated();
     });
 
     test('with invalid email', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
+        $user = User::factory()->make();
 
         $response = $this->actingAs($admin)
             ->postJson('/api/users', [
@@ -60,11 +64,14 @@ describe('cannot create user', function () {
             ]);
 
         $response->assertJsonValidationErrorFor('email');
+
+        $this->assertAuthenticated()
+            ->assertModelMissing($user);
     });
 
     test('with not unique email', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
+        $user = User::factory()->make();
 
         $response = $this->actingAs($admin)
             ->postJson('/api/users', [
@@ -73,11 +80,14 @@ describe('cannot create user', function () {
             ]);
 
         $response->assertJsonValidationErrorFor('email');
+
+        $this->assertAuthenticated()
+            ->assertModelMissing($user);
     });
 
     test('with invalid role', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
+        $user = User::factory()->make();
 
         $response = $this->actingAs($admin)
             ->postJson('/api/users', [
@@ -87,13 +97,16 @@ describe('cannot create user', function () {
             ]);
 
         $response->assertJsonValidationErrorFor('role');
+
+        $this->assertAuthenticated()
+            ->assertModelMissing($user);
     });
 });
 
 describe('can create user', function () {
     test('without role and password specified', function () {
         $admin = User::factory()->admin()->create();
-        $user = User::factory()->create();
+        $user = User::factory()->make();
 
         $requestBody = [
             'name' => $user->name,
@@ -102,7 +115,8 @@ describe('can create user', function () {
 
         $this->actingAs($admin)->postJson('/api/users', $requestBody);
 
-        $this->assertDatabaseHas('users', $requestBody);
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', $requestBody);
     });
 
     test('with admin role', function () {
@@ -124,6 +138,7 @@ describe('can create user', function () {
             ])
             ->assertJsonFragment(['message' => 'SUCCESS: Create User']);
 
-        $this->assertDatabaseHas('users', $requestBody);
+        $this->assertAuthenticated()
+            ->assertDatabaseHas('users', $requestBody);
     });
 });
