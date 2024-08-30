@@ -68,7 +68,7 @@ class UserPolicy
         return $user->role->value === UserRole::ADMIN->value;
     }
 
-    public function updateAll(User $user): bool
+    public function updateAny(User $user): bool
     {
         return $user->role->value === UserRole::ADMIN->value;
     }
