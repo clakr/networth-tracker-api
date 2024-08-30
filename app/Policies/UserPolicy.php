@@ -3,13 +3,15 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\UserRole;
 
 class UserPolicy
 {
-    public function before(User $user): ?bool
+    const ADMIN_ABILITY_EXCEPTIONS = ['delete'];
+
+    public function before(User $user, string $ability): ?bool
     {
-        if ($user->role->value === UserRole::ADMIN->value) {
+
+        if ($user->isAdmin() && ! in_array($ability, self::ADMIN_ABILITY_EXCEPTIONS)) {
             return true;
         }
 
@@ -21,7 +23,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->value === UserRole::ADMIN->value;
+        return $user->isAdmin();
     }
 
     /**
@@ -37,12 +39,12 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->value === UserRole::ADMIN->value;
+        return $user->isAdmin();
     }
 
     public function updateAny(User $user): bool
     {
-        return $user->role->value === UserRole::ADMIN->value;
+        return $user->isAdmin();
     }
 
     /**
@@ -58,7 +60,11 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        //
+        if ($user->isAdmin() && $user->id !== $model->id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

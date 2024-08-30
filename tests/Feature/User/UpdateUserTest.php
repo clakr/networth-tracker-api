@@ -8,7 +8,7 @@ use App\Models\User;
  * - [x] users with user role
  * - [x] empty data
  * - [x] invalid email
- * - [ ] not unique email
+ * - [x] not unique email
  * - [x] invalid role
  * - [x] admin
  */
