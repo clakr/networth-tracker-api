@@ -56,13 +56,18 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        Gate::authorize('updateAll', $request->user());
+
         $user = tap($user)->update([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'role' => $request->input('role'),
         ]);
 
-        return new UserResource($user);
+        return response([
+            'data' => new UserResource($user),
+            'message' => 'SUCCESS: Update User',
+        ], Response::HTTP_OK);
     }
 
     /**

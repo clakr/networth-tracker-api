@@ -9,7 +9,6 @@ test('unauthenticated users cannot create resource', function () {
         'name' => $user->name,
         'email' => $user->email,
         'role' => $user->role,
-        'password' => $user->password,
     ]);
 
     $this->assertGuest();
@@ -25,7 +24,6 @@ test('users with user role cannot create resource', function () {
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
-            'password' => $user->password,
         ]);
 
     $this->assertAuthenticated();
@@ -41,7 +39,6 @@ test('admin can create resource', function () {
         'name' => $user->name,
         'email' => $user->email,
         'role' => $user->role,
-        'password' => $user->password,
     ];
 
     $response = $this->actingAs($admin)->postJson('/api/users', $requestBody);
@@ -72,7 +69,6 @@ test('can not create user with not unique email', function () {
         'name' => $user->name,
         'email' => $admin->email,
         'role' => $user->role,
-        'password' => $user->password,
     ]);
 
     $response->assertJsonValidationErrorFor('email');
