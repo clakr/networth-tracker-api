@@ -51,7 +51,15 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        //
+        $category = tap($category)->update([
+            'name' => $request->input('name'),
+            'type' => $request->input('type'),
+        ]);
+
+        return response([
+            'data' => new CategoryResource($category),
+            'message' => 'SUCCESS: Update Category',
+        ], Response::HTTP_OK);
     }
 
     /**
