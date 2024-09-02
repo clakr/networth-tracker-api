@@ -9,49 +9,45 @@ use App\Models\User;
  * - [x] admin
  * - [x] second set of data
  */
-describe('cannot get users', function () {
-    test('without authentication', function () {
-        $response = $this->get('/api/users');
+test('unauthenticated users cannot fetch users', function () {
+    $response = $this->get('/api/users');
 
-        $response->assertUnauthorized();
+    $response->assertUnauthorized();
 
-        $this->assertGuest();
-    });
-
-    test('with user role', function () {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->get('/api/users');
-
-        $response->assertForbidden();
-
-        $this->assertAuthenticated();
-    });
+    $this->assertGuest();
 });
 
-describe('can get users', function () {
-    test('with admin role', function () {
-        $admin = User::factory()->admin()->create();
+test('users with user role cannot fetch users', function () {
+    $user = User::factory()->create();
 
-        User::factory(15)->create(); // creating more than User model's `$perPage` value
+    $response = $this->actingAs($user)->get('/api/users');
 
-        $response = $this->actingAs($admin)->get('/api/users');
+    $response->assertForbidden();
 
-        // self in this context refers to the /tests/TestCase class
-        $response->assertOk()
-            ->assertExactJsonStructure([
-                'message',
-                'data' => ['*' => self::USER_RESOURCE_KEYS],
-                ...self::PAGINATION_KEYS,
-            ])
-            ->assertJsonFragment(['message' => 'SUCCESS: Get Users'])
-            ->assertJsonCount(10, 'data'); // User model's `$perPage` value
-
-        $this->assertAuthenticated();
-    });
+    $this->assertAuthenticated();
 });
 
-test('can get next set of users', function () {
+test('admins can fetch users', function () {
+    $admin = User::factory()->admin()->create();
+
+    User::factory(15)->create(); // creating more than User model's `$perPage` value
+
+    $response = $this->actingAs($admin)->get('/api/users');
+
+    // self in this context refers to the /tests/TestCase class
+    $response->assertOk()
+        ->assertExactJsonStructure([
+            'message',
+            'data' => ['*' => self::USER_RESOURCE_KEYS],
+            ...self::PAGINATION_KEYS,
+        ])
+        ->assertJsonFragment(['message' => 'SUCCESS: Get Users'])
+        ->assertJsonCount(10, 'data'); // User model's `$perPage` value
+
+    $this->assertAuthenticated();
+});
+
+test('can fetch next set of users', function () {
     $admin = User::factory()->admin()->create();
 
     User::factory(15)->create(); // creating more than User model's `$perPage` value
