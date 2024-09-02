@@ -2,12 +2,11 @@
 
 /**
  * CASES:
- * - [ ] unauthenticated user cannot get categories
- * - [ ] users cannot get categories
- * - [ ] admins can get categories
+ * - [x] unauthenticated user cannot get categories
+ * - [x] users cannot get categories
+ * - [x] admins can get categories
  */
 
-use App\Enums\CategoryType;
 use App\Models\Category;
 use App\Models\User;
 
@@ -32,10 +31,9 @@ test('users cannot fetch categories', function () {
 test('admins can fetch categories', function () {
     $admin = User::factory()->admin()->create();
 
-    Category::factory()->create([
-        'name' => 'Test Name',
-        'type' => CategoryType::INCOME->value,
-    ]);
+    Category::factory(15)
+        ->income()
+        ->create();
 
     $response = $this->actingAs($admin)->get('/api/categories');
 
@@ -43,9 +41,24 @@ test('admins can fetch categories', function () {
         ->assertExactJsonStructure([
             'message',
             'data' => ['*' => self::CATEGORY_RESOURCE_KEYS],
+            ...self::PAGINATION_KEYS,
         ])
         ->assertJsonFragment(['message' => 'SUCCESS: Get Categories'])
-        ->assertJsonCount(1, 'data');
+        ->assertJsonCount(10, 'data');
+
+    $this->assertAuthenticated();
+});
+
+test('can fetch next set of categories', function () {
+    $admin = User::factory()->admin()->create();
+
+    Category::factory(15)
+        ->income()
+        ->create();
+
+    $response = $this->actingAs($admin)->get('/api/categories?page=2');
+
+    $response->assertJsonCount(5, 'data');
 
     $this->assertAuthenticated();
 });

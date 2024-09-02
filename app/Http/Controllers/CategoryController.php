@@ -18,7 +18,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('viewAny', $request->user());
 
-        return CategoryResource::collection(Category::all())->additional(['message' => 'SUCCESS: Get Categories']);
+        return CategoryResource::collection(Category::paginate())->additional(['message' => 'SUCCESS: Get Categories']);
     }
 
     /**
