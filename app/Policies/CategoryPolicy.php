@@ -4,16 +4,27 @@ namespace App\Policies;
 
 use App\Models\Category;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class CategoryPolicy
 {
+    const ADMIN_ABILITY_EXCEPTIONS = [];
+
+    public function before(User $user, string $ability): ?bool
+    {
+
+        if ($user->isAdmin() && ! in_array($ability, self::ADMIN_ABILITY_EXCEPTIONS)) {
+            return true;
+        }
+
+        return null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->isAdmin();
     }
 
     /**

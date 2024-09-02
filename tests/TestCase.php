@@ -43,4 +43,12 @@ abstract class TestCase extends BaseTestCase
         'createdAt',
         'updatedAt',
     ];
+
+    const CATEGORY_RESOURCE_KEYS = [
+        'id',
+        'name',
+        'type',
+        'createdAt',
+        'updatedAt',
+    ];
 }
