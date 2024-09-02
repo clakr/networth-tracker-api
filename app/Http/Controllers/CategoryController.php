@@ -8,6 +8,7 @@ use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class CategoryController extends Controller
 {
@@ -22,33 +23,25 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreCategoryRequest $request)
     {
-        //
+        $category = Category::create([
+            'name' => $request->input('name'),
+            'type' => $request->input('type'),
+        ]);
+
+        return response([
+            'data' => new CategoryResource($category),
+            'message' => 'SUCCESS: Create Category',
+        ], Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      */
     public function show(Category $category)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
     {
         //
     }

@@ -11,7 +11,6 @@ class CategoryPolicy
 
     public function before(User $user, string $ability): ?bool
     {
-
         if ($user->isAdmin() && ! in_array($ability, self::ADMIN_ABILITY_EXCEPTIONS)) {
             return true;
         }
@@ -40,7 +39,7 @@ class CategoryPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->isAdmin();
     }
 
     /**
