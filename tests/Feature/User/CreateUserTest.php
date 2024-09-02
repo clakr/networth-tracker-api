@@ -42,8 +42,8 @@ describe('cannot create user', function () {
         $this->assertAuthenticated()
             ->assertModelMissing($user);
     });
-
     test('with empty data', function () {
+
         $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)->postJson('/api/users');

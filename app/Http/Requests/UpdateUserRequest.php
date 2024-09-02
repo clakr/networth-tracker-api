@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use App\Models\User;
-use App\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest

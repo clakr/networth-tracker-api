@@ -2,18 +2,16 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\UserRole;
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUserRequest extends FormRequest
+class StoreCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', User::class);
+        return false;
     }
 
     /**
@@ -24,9 +22,7 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:users'],
-            'role' => ['string', UserRole::validationRules()],
+            //
         ];
     }
 }
