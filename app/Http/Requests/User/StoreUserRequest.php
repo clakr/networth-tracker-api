@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
-use App\Enums\CategoryType;
-use App\Models\Category;
+use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCategoryRequest extends FormRequest
+class StoreUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('updateAny', Category::class);
+        return $this->user()->can('create', User::class);
     }
 
     /**
@@ -25,7 +25,8 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'type' => ['required', 'string', CategoryType::validationRules()],
+            'email' => ['required', 'email', 'unique:users'],
+            'role' => ['string', UserRole::validationRules()],
         ];
     }
 }
