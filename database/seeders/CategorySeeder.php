@@ -12,6 +12,8 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        // data from https://familybudgetexpert.com/budget-categories/
+
         Category::factory()
             ->income()
             ->createMany([
