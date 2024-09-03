@@ -27,9 +27,9 @@ test('users cannot fetch categories', function () {
         ->income()
         ->create();
 
-    $user = User::factory()->create();
+    $authedUser = User::factory()->make();
 
-    $response = $this->actingAs($user)->getJson("/api/categories/{$category->id}");
+    $response = $this->actingAs($authedUser)->getJson("/api/categories/{$category->id}");
 
     $response->assertForbidden();
 
@@ -41,9 +41,11 @@ test('admins can fetch categories', function () {
         ->income()
         ->create();
 
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $response = $this->actingAs($admin)->getJson("/api/categories/{$category->id}");
+    $response = $this->actingAs($authedAdmin)->getJson("/api/categories/{$category->id}");
 
     $response->assertOk()
         ->assertExactJsonStructure([

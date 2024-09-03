@@ -19,9 +19,9 @@ test('unauthenticated users cannot fetch categories', function () {
 });
 
 test('users cannot fetch categories', function () {
-    $user = User::factory()->create();
+    $authedUser = User::factory()->make();
 
-    $response = $this->actingAs($user)->get('/api/categories');
+    $response = $this->actingAs($authedUser)->get('/api/categories');
 
     $response->assertForbidden();
 
@@ -29,13 +29,15 @@ test('users cannot fetch categories', function () {
 });
 
 test('admins can fetch categories', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
     Category::factory(15)
         ->income()
         ->create();
 
-    $response = $this->actingAs($admin)->get('/api/categories');
+    $response = $this->actingAs($authedAdmin)->get('/api/categories');
 
     $response->assertOk()
         ->assertExactJsonStructure([
@@ -50,13 +52,13 @@ test('admins can fetch categories', function () {
 });
 
 test('can fetch next set of categories', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()->admin()->make();
 
     Category::factory(15)
         ->income()
         ->create();
 
-    $response = $this->actingAs($admin)->get('/api/categories?page=2');
+    $response = $this->actingAs($authedAdmin)->get('/api/categories?page=2');
 
     $response->assertJsonCount(5, 'data');
 

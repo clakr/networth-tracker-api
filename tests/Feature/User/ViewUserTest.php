@@ -21,10 +21,11 @@ test('cannot fetch users without authentication', function () {
 });
 
 test('users cannot fetch other users data', function () {
-    $otherUser = User::factory()->create();
+    $authedUser = User::factory()->make();
+
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->getJson("/api/users/{$otherUser->id}");
+    $response = $this->actingAs($authedUser)->getJson("/api/users/{$user->id}");
 
     $response->assertForbidden();
 

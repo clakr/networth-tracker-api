@@ -14,38 +14,39 @@ use App\Models\User;
  * - [x] admin
  */
 test('unauthenticated users cannot create user', function () {
-    $user = User::factory()->make();
+    $userData = User::factory()->make();
 
     $response = $this->postJson('/api/users', [
-        'name' => $user->name,
-        'email' => $user->email,
+        'name' => $userData->name,
+        'email' => $userData->email,
     ]);
 
     $response->assertUnauthorized();
 
-    $this->assertGuest()
-        ->assertModelMissing($user);
+    $this->assertGuest()->assertModelMissing($userData);
 });
 
 test('users with user role cannot create user', function () {
-    $user = User::factory()->make();
+    $authedUser = User::factory()->make();
 
-    $response = $this->actingAs(User::factory()->create())
-        ->postJson('/api/users', [
-            'name' => $user->name,
-            'email' => $user->email,
-        ]);
+    $userData = User::factory()->make();
+
+    $response = $this->actingAs($authedUser)->postJson('/api/users', [
+        'name' => $userData->name,
+        'email' => $userData->email,
+    ]);
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()
-        ->assertModelMissing($user);
+    $this->assertAuthenticated()->assertModelMissing($userData);
 });
 
 test('cannot create user with empty data', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $response = $this->actingAs($admin)->postJson('/api/users');
+    $response = $this->actingAs($authedAdmin)->postJson('/api/users');
 
     $response->assertJsonValidationErrors(['name', 'email']);
 
@@ -53,64 +54,71 @@ test('cannot create user with empty data', function () {
 });
 
 test('cannot create user with invalid email', function () {
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->make();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $response = $this->actingAs($admin)
-        ->postJson('/api/users', [
-            'name' => $user->name,
-            'email' => 'THIS IS INVALID EMAIL',
-        ]);
+    $userData = User::factory()->make();
+
+    $response = $this->actingAs($authedAdmin)->postJson('/api/users', [
+        'name' => $userData->name,
+        'email' => 'THIS IS INVALID EMAIL',
+    ]);
 
     $response->assertJsonValidationErrorFor('email');
 
-    $this->assertAuthenticated()
-        ->assertModelMissing($user);
+    $this->assertAuthenticated()->assertModelMissing($userData);
 });
 test('cannot create user with not unique email', function () {
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->make();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->create(); // this test needs an existing `User` instance in the database that is why we need to use `create()` instead of `make()`
 
-    $response = $this->actingAs($admin)
+    $userData = User::factory()->make();
+
+    $response = $this->actingAs($authedAdmin)
         ->postJson('/api/users', [
-            'name' => $user->name,
-            'email' => $admin->email,
+            'name' => $userData->name,
+            'email' => $authedAdmin->email,
         ]);
 
     $response->assertJsonValidationErrorFor('email');
 
-    $this->assertAuthenticated()
-        ->assertModelMissing($user);
+    $this->assertAuthenticated()->assertModelMissing($userData);
 });
 
 test('cannot create user with invalid role', function () {
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->make();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $response = $this->actingAs($admin)
-        ->postJson('/api/users', [
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => 'SUPERADMIN',
-        ]);
+    $userData = User::factory()->make();
+
+    $response = $this->actingAs($authedAdmin)->postJson('/api/users', [
+        'name' => $userData->name,
+        'email' => $userData->email,
+        'role' => 'SUPERADMIN',
+    ]);
 
     $response->assertJsonValidationErrorFor('role');
 
-    $this->assertAuthenticated()
-        ->assertModelMissing($user);
+    $this->assertAuthenticated()->assertModelMissing($userData);
 });
 
 test('admins can create user', function () {
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->make();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $userData = User::factory()->make();
 
     $requestBody = [
-        'name' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role,
+        'name' => $userData->name,
+        'email' => $userData->email,
+        'role' => $userData->role,
     ];
 
-    $response = $this->actingAs($admin)->postJson('/api/users', $requestBody);
+    $response = $this->actingAs($authedAdmin)->postJson('/api/users', $requestBody);
 
     $response->assertCreated()
         ->assertExactJsonStructure([
@@ -119,21 +127,22 @@ test('admins can create user', function () {
         ])
         ->assertJsonFragment(['message' => 'SUCCESS: Create User']);
 
-    $this->assertAuthenticated()
-        ->assertDatabaseHas('users', $requestBody);
+    $this->assertAuthenticated()->assertDatabaseHas('users', $requestBody);
 });
 
 test('can create user without role and password specified', function () {
-    $admin = User::factory()->admin()->create();
-    $user = User::factory()->make();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $userData = User::factory()->make();
 
     $requestBody = [
-        'name' => $user->name,
-        'email' => $user->email,
+        'name' => $userData->name,
+        'email' => $userData->email,
     ];
 
-    $this->actingAs($admin)->postJson('/api/users', $requestBody);
+    $this->actingAs($authedAdmin)->postJson('/api/users', $requestBody);
 
-    $this->assertAuthenticated()
-        ->assertDatabaseHas('users', $requestBody);
+    $this->assertAuthenticated()->assertDatabaseHas('users', $requestBody);
 });

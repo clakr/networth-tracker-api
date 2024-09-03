@@ -18,9 +18,9 @@ test('unauthenticated users cannot fetch users', function () {
 });
 
 test('users with user role cannot fetch users', function () {
-    $user = User::factory()->create();
+    $authedUser = User::factory()->make();
 
-    $response = $this->actingAs($user)->get('/api/users');
+    $response = $this->actingAs($authedUser)->get('/api/users');
 
     $response->assertForbidden();
 
@@ -28,11 +28,13 @@ test('users with user role cannot fetch users', function () {
 });
 
 test('admins can fetch users', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
     User::factory(15)->create(); // creating more than User model's `$perPage` value
 
-    $response = $this->actingAs($admin)->get('/api/users');
+    $response = $this->actingAs($authedAdmin)->get('/api/users');
 
     // self in this context refers to the /tests/TestCase class
     $response->assertOk()
@@ -48,13 +50,15 @@ test('admins can fetch users', function () {
 });
 
 test('can fetch next set of users', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
     User::factory(15)->create(); // creating more than User model's `$perPage` value
 
-    $response = $this->actingAs($admin)->get('/api/users?page=2');
+    $response = $this->actingAs($authedAdmin)->get('/api/users?page=2');
 
-    $response->assertJsonCount(6, 'data'); // User model's `$perPage` value + created admin
+    $response->assertJsonCount(5, 'data');
 
     $this->assertAuthenticated();
 });

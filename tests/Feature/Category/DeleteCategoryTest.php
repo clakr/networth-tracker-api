@@ -26,9 +26,10 @@ test('users cannot delete categories', function () {
     $category = Category::factory()
         ->income()
         ->create();
-    $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->deleteJson("/api/categories/{$category->id}");
+    $authedUser = User::factory()->make();
+
+    $response = $this->actingAs($authedUser)->deleteJson("/api/categories/{$category->id}");
 
     $response->assertForbidden();
 
@@ -39,9 +40,12 @@ test('admins can delete categories', function () {
     $category = Category::factory()
         ->income()
         ->create();
-    $admin = User::factory()->admin()->create();
 
-    $response = $this->actingAs($admin)->deleteJson("/api/categories/{$category->id}");
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $response = $this->actingAs($authedAdmin)->deleteJson("/api/categories/{$category->id}");
 
     $response->assertOk()
         ->assertExactJsonStructure(['message'])

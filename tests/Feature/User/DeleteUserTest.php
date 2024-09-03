@@ -17,42 +17,45 @@ test('cannot delete user without authentication', function () {
 
     $response->assertUnauthorized();
 
-    $this->assertGuest()
-        ->assertModelExists($user);
+    $this->assertGuest()->assertModelExists($user);
 });
 
 test('user cannot delete any user', function () {
+    $authedUser = User::factory()->create();
+
     $user = User::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())->deleteJson("/api/users/{$user->id}");
+    $response = $this->actingAs($authedUser)->deleteJson("/api/users/{$user->id}");
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()
-        ->assertModelExists($user);
+    $this->assertAuthenticated()->assertModelExists($user);
 });
 
 test('admin cannot delete own account', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->create();
 
-    $response = $this->actingAs($admin)->deleteJson("/api/users/{$admin->id}");
+    $response = $this->actingAs($authedAdmin)->deleteJson("/api/users/{$authedAdmin->id}");
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()
-        ->assertModelExists($admin);
+    $this->assertAuthenticated()->assertModelExists($authedAdmin);
 });
 
 test('admin can delete any user', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
     $user = User::factory()->create();
 
-    $response = $this->actingAs($admin)->deleteJson("/api/users/{$user->id}");
+    $response = $this->actingAs($authedAdmin)->deleteJson("/api/users/{$user->id}");
 
     $response->assertOk()
         ->assertExactJsonStructure(['message'])
         ->assertJsonFragment(['message' => 'SUCCESS: Delete User']);
 
-    $this->assertAuthenticated()
-        ->assertSoftDeleted($user);
+    $this->assertAuthenticated()->assertSoftDeleted($user);
 });

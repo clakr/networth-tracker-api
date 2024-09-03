@@ -13,160 +13,178 @@ use App\Models\User;
  * - [x] admin
  */
 test('unauthenticated users cannot update user', function () {
-    $existingUser = User::factory()->create();
-    $user = User::factory()->make();
+    $user = User::factory()->create();
 
-    $response = $this->putJson("/api/users/{$existingUser->id}", [
-        'name' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role,
+    $userData = User::factory()->make();
+
+    $response = $this->putJson("/api/users/{$user->id}", [
+        'name' => $userData->name,
+        'email' => $userData->email,
+        'role' => $userData->role,
     ]);
 
     $response->assertUnauthorized();
 
     $this->assertGuest()
         ->assertDatabaseHas('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
-        ])
-        ->assertDatabaseMissing('users', [
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
+        ])
+        ->assertDatabaseMissing('users', [
+            'name' => $userData->name,
+            'email' => $userData->email,
+            'role' => $userData->role,
         ]);
 });
 
 test('users with user role cannot update user', function () {
-    $existingUser = User::factory()->create();
-    $user = User::factory()->make();
+    $authedUser = User::factory()->make();
 
-    $response = $this->actingAs(User::factory()->create())
-        ->putJson("/api/users/{$existingUser->id}", [
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
+    $user = User::factory()->create();
+
+    $userData = User::factory()->make();
+
+    $response = $this->actingAs($authedUser)
+        ->putJson("/api/users/{$user->id}", [
+            'name' => $userData->name,
+            'email' => $userData->email,
+            'role' => $userData->role,
         ]);
 
     $response->assertForbidden();
 
     $this->assertAuthenticated()
         ->assertDatabaseHas('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
-        ])
-        ->assertDatabaseMissing('users', [
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
+        ])
+        ->assertDatabaseMissing('users', [
+            'name' => $userData->name,
+            'email' => $userData->email,
+            'role' => $userData->role,
         ]);
 });
 
 test('cannot update user with empty data', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $existingUser = User::factory()->create();
+    $user = User::factory()->create();
 
-    $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}");
+    $response = $this->actingAs($authedAdmin)->putJson("/api/users/{$user->id}");
 
     $response->assertJsonValidationErrors(['name', 'email', 'role']);
 
-    $this->assertAuthenticated()
-        ->assertDatabaseHas('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
-        ]);
+    $this->assertAuthenticated()->assertDatabaseHas('users', [
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role,
+    ]);
 });
 
 test('cannot update user with invalid email', function () {
-    $admin = user::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $existinguser = user::factory()->create();
-    $user = user::factory()->make();
+    $user = User::factory()->create();
+
+    $userData = User::factory()->make();
 
     $requestbody = [
-        'name' => $user->name,
+        'name' => $userData->name,
         'email' => 'this is invalid email',
-        'role' => $user->role,
+        'role' => $userData->role,
     ];
 
-    $response = $this->actingas($admin)->putjson("/api/users/{$existinguser->id}", $requestbody);
+    $response = $this->actingas($authedAdmin)->putjson("/api/users/{$user->id}", $requestbody);
 
     $response->assertjsonvalidationerrorfor('email');
 
     $this->assertauthenticated()
         ->assertdatabasehas('users', [
-            'name' => $existinguser->name,
-            'email' => $existinguser->email,
-            'role' => $existinguser->role,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
         ])
         ->assertdatabasemissing('users', $requestbody);
 });
 
 test('cannot update user with not unique email', function () {
-    $admin = user::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->create();
 
-    $existingUser = user::factory()->create();
-    $user = user::factory()->make();
+    $user = User::factory()->create();
+
+    $userData = User::factory()->make();
 
     $requestBody = [
-        'name' => $user->name,
-        'email' => $admin->email,
-        'role' => $user->role,
+        'name' => $userData->name,
+        'email' => $authedAdmin->email,
+        'role' => $userData->role,
     ];
 
-    $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}", $requestBody);
+    $response = $this->actingAs($authedAdmin)->putJson("/api/users/{$user->id}", $requestBody);
 
     $response->assertJsonValidationErrorFor('email');
 
     $this->assertAuthenticated()
         ->assertDatabaseHas('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
         ])
         ->assertDatabaseMissing('users', $requestBody);
 });
 
 test('cannot update user with invalid role value', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $existingUser = User::factory()->create();
-    $user = User::factory()->make();
+    $user = User::factory()->create();
+
+    $userData = User::factory()->make();
 
     $requestBody = [
-        'name' => $user->name,
-        'email' => $user->email,
+        'name' => $userData->name,
+        'email' => $userData->email,
         'role' => 'SUPERADMIN',
     ];
 
-    $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}", $requestBody);
+    $response = $this->actingAs($authedAdmin)->putJson("/api/users/{$user->id}", $requestBody);
 
     $response->assertJsonValidationErrorFor('role');
 
     $this->assertAuthenticated()
         ->assertDatabaseHas('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
         ])
         ->assertDatabaseMissing('users', $requestBody);
 });
 
 test('admins can update user', function () {
-    $admin = User::factory()->admin()->create();
-    $existingUser = User::factory()->create();
-    $user = User::factory()->make();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $user = User::factory()->create();
+
+    $userData = User::factory()->make();
 
     $requestBody = [
-        'name' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role,
+        'name' => $userData->name,
+        'email' => $userData->email,
+        'role' => $userData->role,
     ];
 
-    $response = $this->actingAs($admin)->putJson("/api/users/{$existingUser->id}", $requestBody);
+    $response = $this->actingAs($authedAdmin)->putJson("/api/users/{$user->id}", $requestBody);
 
     $response->assertOk()
         ->assertExactJsonStructure([
@@ -178,8 +196,8 @@ test('admins can update user', function () {
     $this->assertAuthenticated()
         ->assertDatabaseHas('users', $requestBody)
         ->assertDatabaseMissing('users', [
-            'name' => $existingUser->name,
-            'email' => $existingUser->email,
-            'role' => $existingUser->role,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
         ]);
 });

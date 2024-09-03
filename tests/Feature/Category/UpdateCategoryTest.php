@@ -13,80 +13,90 @@ use App\Models\Category;
 use App\Models\User;
 
 test('unauthenticated users cannot update a category', function () {
-    $existingCategory = Category::factory()
+    $category = Category::factory()
         ->income()
         ->create();
-    $category = Category::factory()
+
+    $categoryData = Category::factory()
         ->expense()
         ->make();
 
-    $response = $this->putJson("/api/categories/{$existingCategory->id}", [
-        'name' => $category->name,
-        'type' => $category->type,
+    $response = $this->putJson("/api/categories/{$category->id}", [
+        'name' => $categoryData->name,
+        'type' => $categoryData->type,
     ]);
 
     $response->assertUnauthorized();
 
     $this->assertGuest()
         ->assertDatabaseHas('categories', [
-            'name' => $existingCategory->name,
-            'type' => $existingCategory->type,
-        ])
-        ->assertDatabaseMissing('categories', [
             'name' => $category->name,
             'type' => $category->type,
+        ])
+        ->assertDatabaseMissing('categories', [
+            'name' => $categoryData->name,
+            'type' => $categoryData->type,
         ]);
 });
 
 test('users with user role cannot update a category', function () {
-    $existingCategory = Category::factory()
+    $authedUser = User::factory()->make();
+
+    $category = Category::factory()
         ->income()
         ->create();
-    $category = Category::factory()
+
+    $categoryData = Category::factory()
         ->expense()
         ->make();
 
-    $response = $this->actingAs(User::factory()->create())
-        ->putJson("/api/categories/{$existingCategory->id}", [
-            'name' => $category->name,
-            'type' => $category->type,
-        ]);
+    $response = $this->actingAs($authedUser)->putJson("/api/categories/{$category->id}", [
+        'name' => $categoryData->name,
+        'type' => $categoryData->type,
+    ]);
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()->assertDatabaseHas('categories', [
-        'name' => $existingCategory->name,
-        'type' => $existingCategory->type,
-    ])->assertDatabaseMissing('categories', [
-        'name' => $category->name,
-        'type' => $category->type,
-    ]);
+    $this->assertAuthenticated()
+        ->assertDatabaseHas('categories', [
+            'name' => $category->name,
+            'type' => $category->type,
+        ])
+        ->assertDatabaseMissing('categories', [
+            'name' => $categoryData->name,
+            'type' => $categoryData->type,
+        ]);
 });
 
 test('cannot update a category with empty data', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $existingCategory = Category::factory()
+    $category = Category::factory()
         ->income()
         ->create();
 
-    $response = $this->actingAs($admin)->putJson("/api/categories/{$existingCategory->id}");
+    $response = $this->actingAs($authedAdmin)->putJson("/api/categories/{$category->id}");
 
     $response->assertJsonValidationErrors(['name', 'type']);
 });
 
 test('cannot update category with invalid type', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $existingCategory = Category::factory()
+    $category = Category::factory()
         ->income()
         ->create();
-    $category = Category::factory()
+
+    $categoryData = Category::factory()
         ->expense()
         ->make();
 
-    $response = $this->actingAs($admin)->putJson("/api/categories/{$existingCategory->id}", [
-        'name' => $category->name,
+    $response = $this->actingAs($authedAdmin)->putJson("/api/categories/{$category->id}", [
+        'name' => $categoryData->name,
         'type' => 'INVALID TYPE',
     ]);
 
@@ -94,31 +104,34 @@ test('cannot update category with invalid type', function () {
 
     $this->assertAuthenticated()
         ->assertDatabaseHas('categories', [
-            'name' => $existingCategory->name,
-            'type' => $existingCategory->type,
-        ])
-        ->assertDatabaseMissing('categories', [
             'name' => $category->name,
             'type' => $category->type,
+        ])
+        ->assertDatabaseMissing('categories', [
+            'name' => $categoryData->name,
+            'type' => $categoryData->type,
         ]);
 });
 
 test('admins can update a category', function () {
-    $admin = User::factory()->admin()->create();
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
 
-    $existingCategory = Category::factory()
+    $category = Category::factory()
         ->income()
         ->create();
-    $category = Category::factory()
+
+    $categoryData = Category::factory()
         ->expense()
         ->make();
 
     $requestBody = [
-        'name' => $category->name,
-        'type' => $category->type,
+        'name' => $categoryData->name,
+        'type' => $categoryData->type,
     ];
 
-    $response = $this->actingAs($admin)->putJson("/api/categories/{$existingCategory->id}", $requestBody);
+    $response = $this->actingAs($authedAdmin)->putJson("/api/categories/{$category->id}", $requestBody);
 
     $response->assertOk()
         ->assertExactJsonStructure([
@@ -130,7 +143,7 @@ test('admins can update a category', function () {
     $this->assertAuthenticated()
         ->assertDatabaseHas('categories', $requestBody)
         ->assertDatabaseMissing('categories', [
-            'name' => $existingCategory->name,
-            'type' => $existingCategory->type,
+            'name' => $category->name,
+            'type' => $category->type,
         ]);
 });
