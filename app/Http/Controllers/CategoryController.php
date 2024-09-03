@@ -71,6 +71,12 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        Gate::authorize('delete', Category::class);
+
+        $category->delete();
+
+        return response([
+            'message' => 'SUCCESS: Delete Category',
+        ], Response::HTTP_OK);
     }
 }
