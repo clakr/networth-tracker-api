@@ -7,17 +7,6 @@ use App\Models\User;
 
 class CategoryPolicy
 {
-    const ADMIN_ABILITY_EXCEPTIONS = [];
-
-    public function before(User $user, string $ability): ?bool
-    {
-        if ($user->isAdmin() && ! in_array($ability, self::ADMIN_ABILITY_EXCEPTIONS)) {
-            return true;
-        }
-
-        return null;
-    }
-
     /**
      * Determine whether the user can view any models.
      */
@@ -29,9 +18,9 @@ class CategoryPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Category $category): bool
+    public function view(User $user): bool
     {
-        //
+        return $user->isAdmin();
     }
 
     /**

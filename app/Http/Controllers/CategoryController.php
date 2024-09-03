@@ -6,7 +6,6 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,9 +14,9 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        Gate::authorize('viewAny', $request->user());
+        Gate::authorize('viewAny', Category::class);
 
         return CategoryResource::collection(Category::paginate())->additional(['message' => 'SUCCESS: Get Categories']);
     }
@@ -43,7 +42,12 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        Gate::authorize('view', Category::class);
+
+        return response([
+            'data' => new CategoryResource($category),
+            'message' => 'SUCCESS: Get Category',
+        ], Response::HTTP_OK);
     }
 
     /**

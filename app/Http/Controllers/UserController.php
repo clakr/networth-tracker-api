@@ -6,7 +6,6 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,9 +14,9 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        Gate::authorize('viewAny', $request->user());
+        Gate::authorize('viewAny', User::class);
 
         return UserResource::collection(User::paginate())
             ->additional(['message' => 'SUCCESS: Get Users']);
@@ -46,7 +45,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        Gate::authorize('view', $user);
+        Gate::authorize('view', [
+            User::class,
+            $user,
+        ]);
 
         return response([
             'data' => new UserResource($user),
@@ -76,7 +78,10 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        Gate::authorize('delete', $user);
+        Gate::authorize('delete', [
+            User::class,
+            $user,
+        ]);
 
         $user->delete();
 
