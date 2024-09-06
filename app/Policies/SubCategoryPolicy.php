@@ -47,9 +47,9 @@ class SubCategoryPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, SubCategory $subCategory): bool
+    public function delete(User $user): bool
     {
-        //
+        return $user->isAdmin();
     }
 
     /**

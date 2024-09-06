@@ -74,6 +74,12 @@ class SubCategoryController extends Controller
      */
     public function destroy(SubCategory $subcategory)
     {
-        //
+        Gate::authorize('delete', SubCategory::class);
+
+        $subcategory->delete();
+
+        return response([
+            'message' => 'SUCCESS: Delete Subcategory',
+        ], Response::HTTP_OK);
     }
 }
