@@ -18,8 +18,7 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
 
-        return UserResource::collection(User::paginate())
-            ->additional(['message' => 'SUCCESS: Get Users']);
+        return UserResource::collection(User::paginate())->additional(['message' => 'SUCCESS: Get Users']);
     }
 
     /**

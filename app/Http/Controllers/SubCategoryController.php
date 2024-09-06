@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SubCategory\StoreSubCategoryRequest;
 use App\Http\Requests\SubCategory\UpdateSubCategoryRequest;
+use App\Http\Resources\SubCategoryResource;
 use App\Models\SubCategory;
+use Illuminate\Support\Facades\Gate;
 
 class SubCategoryController extends Controller
 {
@@ -13,7 +15,11 @@ class SubCategoryController extends Controller
      */
     public function index()
     {
-        //
+        Gate::authorize('viewAny', SubCategory::class);
+
+        $subCategories = SubCategory::with('category')->paginate();
+
+        return SubCategoryResource::collection($subCategories)->additional(['message' => 'SUCCESS: Get Subcategories']);
     }
 
     /**

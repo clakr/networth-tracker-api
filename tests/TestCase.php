@@ -55,4 +55,12 @@ abstract class TestCase extends BaseTestCase
         'createdAt',
         'updatedAt',
     ];
+
+    const SUBCATEGORY_RESOURCE_KEYS = [
+        'id',
+        'name',
+        'createdAt',
+        'updatedAt',
+        'category' => self::CATEGORY_RESOURCE_KEYS,
+    ];
 }

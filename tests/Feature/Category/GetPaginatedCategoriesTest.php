@@ -5,6 +5,7 @@
  * - [x] unauthenticated user cannot get categories
  * - [x] users cannot get categories
  * - [x] admins can get categories
+ * - [x] can get next set of categories
  */
 
 use App\Models\Category;

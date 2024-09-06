@@ -10,6 +10,8 @@ class SubCategory extends Model
 {
     use HasFactory;
 
+    protected $perPage = 10;
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\SubCategory;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class SubCategoryPolicy
 {
@@ -13,7 +12,7 @@ class SubCategoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->isAdmin();
     }
 
     /**
