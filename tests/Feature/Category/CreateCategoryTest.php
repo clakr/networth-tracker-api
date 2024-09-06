@@ -24,7 +24,7 @@ test('unauthenticated users cannot create categories', function () {
 
     $response->assertUnauthorized();
 
-    $this->assertGuest()->assertModelMissing($categoryData);
+    $this->assertGuest();
 });
 
 test('users with user role cannot create categories', function () {
@@ -41,7 +41,7 @@ test('users with user role cannot create categories', function () {
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()->assertModelMissing($categoryData);
+    $this->assertAuthenticated();
 });
 
 test('cannot create category with empty data', function () {
@@ -72,7 +72,7 @@ test('cannot create category with invalid type', function () {
 
     $response->assertJsonValidationErrorFor('type');
 
-    $this->assertAuthenticated()->assertModelMissing($categoryData);
+    $this->assertAuthenticated();
 });
 
 test('admins can create categories', function () {

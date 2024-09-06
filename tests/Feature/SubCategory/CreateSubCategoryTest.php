@@ -14,12 +14,8 @@ use App\Models\SubCategory;
 use App\Models\User;
 
 test('unauthenticated users cannot create sub categories', function () {
-    $category = Category::factory()
-        ->income()
-        ->create();
-
     $subCategoryData = SubCategory::factory()
-        ->for($category)
+        ->for(Category::factory()->income())
         ->make();
 
     $response = $this->postJson('/api/subcategories', [
@@ -29,18 +25,14 @@ test('unauthenticated users cannot create sub categories', function () {
 
     $response->assertUnauthorized();
 
-    $this->assertGuest()->assertModelMissing($subCategoryData);
+    $this->assertGuest();
 });
 
 test('users cannot create sub categories', function () {
     $authedUser = User::factory()->make();
 
-    $category = Category::factory()
-        ->income()
-        ->create();
-
     $subCategoryData = SubCategory::factory()
-        ->for($category)
+        ->for(Category::factory()->income())
         ->make();
 
     $response = $this->actingAs($authedUser)->postJson('/api/subcategories', [
@@ -50,7 +42,7 @@ test('users cannot create sub categories', function () {
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()->assertModelMissing($subCategoryData);
+    $this->assertAuthenticated();
 });
 
 test('cannot create sub categories with empty data', function () {
@@ -79,7 +71,7 @@ test('cannot create sub categories with invalid category id', function () {
 
     $response->assertJsonValidationErrorFor('category_id');
 
-    $this->assertAuthenticated()->assertModelMissing($subCategoryData);
+    $this->assertAuthenticated();
 });
 
 test('admins can create sub categories', function () {
@@ -87,12 +79,8 @@ test('admins can create sub categories', function () {
         ->admin()
         ->make();
 
-    $category = Category::factory()
-        ->income()
-        ->create();
-
     $subCategoryData = SubCategory::factory()
-        ->for($category)
+        ->for(Category::factory()->income())
         ->make();
 
     $requestBody = [

@@ -45,12 +45,11 @@ test('users with user role cannot update user', function () {
 
     $userData = User::factory()->make();
 
-    $response = $this->actingAs($authedUser)
-        ->putJson("/api/users/{$user->id}", [
-            'name' => $userData->name,
-            'email' => $userData->email,
-            'role' => $userData->role,
-        ]);
+    $response = $this->actingAs($authedUser)->putJson("/api/users/{$user->id}", [
+        'name' => $userData->name,
+        'email' => $userData->email,
+        'role' => $userData->role,
+    ]);
 
     $response->assertForbidden();
 
@@ -100,17 +99,17 @@ test('cannot update user with invalid email', function () {
         'role' => $userData->role,
     ];
 
-    $response = $this->actingas($authedAdmin)->putjson("/api/users/{$user->id}", $requestbody);
+    $response = $this->actingAs($authedAdmin)->putJson("/api/users/{$user->id}", $requestbody);
 
-    $response->assertjsonvalidationerrorfor('email');
+    $response->assertJsonValidationErrorFor('email');
 
-    $this->assertauthenticated()
-        ->assertdatabasehas('users', [
+    $this->assertAuthenticated()
+        ->assertDatabaseHas('users', [
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
         ])
-        ->assertdatabasemissing('users', $requestbody);
+        ->assertDatabaseMissing('users', $requestbody);
 });
 
 test('cannot update user with not unique email', function () {

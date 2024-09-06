@@ -82,7 +82,10 @@ test('cannot update sub categories with empty data', function () {
 
     $response->assertJsonValidationErrors(['name', 'category_id']);
 
-    $this->assertAuthenticated();
+    $this->assertAuthenticated()->assertDatabaseHas('sub_categories', [
+        'name' => $subCategory->name,
+        'category_id' => $subCategory->category_id,
+    ]);
 });
 
 test('cannot update sub categories with invalid category id', function () {
@@ -98,10 +101,12 @@ test('cannot update sub categories with invalid category id', function () {
         ->for(Category::factory()->expense())
         ->make();
 
-    $response = $this->actingAs($authedAdmin)->putJson("/api/subcategories/{$subCategory->id}", [
+    $requestBody = [
         'name' => $subCategoryData->name,
         'category_id' => 0,
-    ]);
+    ];
+
+    $response = $this->actingAs($authedAdmin)->putJson("/api/subcategories/{$subCategory->id}", $requestBody);
 
     $response->assertJsonValidationErrorFor('category_id');
 
@@ -110,10 +115,7 @@ test('cannot update sub categories with invalid category id', function () {
             'name' => $subCategory->name,
             'category_id' => $subCategory->category_id,
         ])
-        ->assertDatabaseMissing('sub_categories', [
-            'name' => $subCategoryData->name,
-            'category_id' => $subCategoryData->category_id,
-        ]);
+        ->assertDatabaseMissing('sub_categories', $requestBody);
 });
 
 test('admins can update sub categories', function () {

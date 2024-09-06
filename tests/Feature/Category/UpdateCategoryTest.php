@@ -80,6 +80,11 @@ test('cannot update a category with empty data', function () {
     $response = $this->actingAs($authedAdmin)->putJson("/api/categories/{$category->id}");
 
     $response->assertJsonValidationErrors(['name', 'type']);
+
+    $this->assertAuthenticated()->assertDatabaseHas('categories', [
+        'name' => $category->name,
+        'type' => $category->type,
+    ]);
 });
 
 test('cannot update category with invalid type', function () {
@@ -95,10 +100,12 @@ test('cannot update category with invalid type', function () {
         ->expense()
         ->make();
 
-    $response = $this->actingAs($authedAdmin)->putJson("/api/categories/{$category->id}", [
+    $requestBody = [
         'name' => $categoryData->name,
         'type' => 'INVALID TYPE',
-    ]);
+    ];
+
+    $response = $this->actingAs($authedAdmin)->putJson("/api/categories/{$category->id}", $requestBody);
 
     $response->assertJsonValidationErrorFor('type');
 
@@ -107,10 +114,7 @@ test('cannot update category with invalid type', function () {
             'name' => $category->name,
             'type' => $category->type,
         ])
-        ->assertDatabaseMissing('categories', [
-            'name' => $categoryData->name,
-            'type' => $categoryData->type,
-        ]);
+        ->assertDatabaseMissing('categories', $requestBody);
 });
 
 test('admins can update a category', function () {

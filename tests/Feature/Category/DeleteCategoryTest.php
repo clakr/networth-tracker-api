@@ -19,31 +19,31 @@ test('unauthenticated users cannot delete categories', function () {
 
     $response->assertUnauthorized();
 
-    $this->assertGuest();
+    $this->assertGuest()->assertModelExists($category);
 });
 
 test('users cannot delete categories', function () {
+    $authedUser = User::factory()->make();
+
     $category = Category::factory()
         ->income()
         ->create();
-
-    $authedUser = User::factory()->make();
 
     $response = $this->actingAs($authedUser)->deleteJson("/api/categories/{$category->id}");
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated();
+    $this->assertAuthenticated()->assertModelExists($category);
 });
 
 test('admins can delete categories', function () {
-    $category = Category::factory()
-        ->income()
-        ->create();
-
     $authedAdmin = User::factory()
         ->admin()
         ->make();
+
+    $category = Category::factory()
+        ->income()
+        ->create();
 
     $response = $this->actingAs($authedAdmin)->deleteJson("/api/categories/{$category->id}");
 
@@ -51,5 +51,5 @@ test('admins can delete categories', function () {
         ->assertExactJsonStructure(['message'])
         ->assertJsonFragment(['message' => 'SUCCESS: Delete Category']);
 
-    $this->assertAuthenticated();
+    $this->assertAuthenticated()->assertModelMissing($category);
 });

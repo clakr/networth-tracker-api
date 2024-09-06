@@ -23,7 +23,7 @@ test('unauthenticated users cannot create user', function () {
 
     $response->assertUnauthorized();
 
-    $this->assertGuest()->assertModelMissing($userData);
+    $this->assertGuest();
 });
 
 test('users with user role cannot create user', function () {
@@ -38,7 +38,7 @@ test('users with user role cannot create user', function () {
 
     $response->assertForbidden();
 
-    $this->assertAuthenticated()->assertModelMissing($userData);
+    $this->assertAuthenticated();
 });
 
 test('cannot create user with empty data', function () {
@@ -67,7 +67,7 @@ test('cannot create user with invalid email', function () {
 
     $response->assertJsonValidationErrorFor('email');
 
-    $this->assertAuthenticated()->assertModelMissing($userData);
+    $this->assertAuthenticated();
 });
 test('cannot create user with not unique email', function () {
     $authedAdmin = User::factory()
