@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * CASES:
+ * - [x] unauthenticated users cannot create sub categories
+ * - [x] users cannot create sub categories
+ * - [x] cannot create sub categories with empty data
+ * - [x] cannot create sub categories with invalid category id
+ * - [x] admins can create sub categories
+ */
+
+use App\Models\Category;
+use App\Models\SubCategory;
+use App\Models\User;
+
+test('unauthenticated users cannot create sub categories', function () {
+    $category = Category::factory()
+        ->income()
+        ->create();
+
+    $subCategoryData = SubCategory::factory()
+        ->for($category)
+        ->make();
+
+    $response = $this->postJson('/api/subcategories', [
+        'name' => $subCategoryData->name,
+        'category_id' => $subCategoryData->category_id,
+    ]);
+
+    $response->assertUnauthorized();
+
+    $this->assertGuest()->assertModelMissing($subCategoryData);
+});
+
+test('users cannot create sub categories', function () {
+    $authedUser = User::factory()->make();
+
+    $category = Category::factory()
+        ->income()
+        ->create();
+
+    $subCategoryData = SubCategory::factory()
+        ->for($category)
+        ->make();
+
+    $response = $this->actingAs($authedUser)->postJson('/api/subcategories', [
+        'name' => $subCategoryData->name,
+        'category_id' => $subCategoryData->category_id,
+    ]);
+
+    $response->assertForbidden();
+
+    $this->assertAuthenticated()->assertModelMissing($subCategoryData);
+});
+
+test('cannot create sub categories with empty data', function () {
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $response = $this->actingAs($authedAdmin)->postJson('/api/subcategories');
+
+    $response->assertJsonValidationErrors(['name', 'category_id']);
+
+    $this->assertAuthenticated();
+});
+
+test('cannot create sub categories with invalid category id', function () {
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $subCategoryData = SubCategory::factory()->make();
+
+    $response = $this->actingAs($authedAdmin)->postJson('/api/subcategories', [
+        'name' => $subCategoryData->name,
+        'category_id' => 0,
+    ]);
+
+    $response->assertJsonValidationErrorFor('category_id');
+
+    $this->assertAuthenticated()->assertModelMissing($subCategoryData);
+});
+
+test('admins can create sub categories', function () {
+    $authedAdmin = User::factory()
+        ->admin()
+        ->make();
+
+    $category = Category::factory()
+        ->income()
+        ->create();
+
+    $subCategoryData = SubCategory::factory()
+        ->for($category)
+        ->make();
+
+    $requestBody = [
+        'name' => $subCategoryData->name,
+        'category_id' => $subCategoryData->category_id,
+    ];
+
+    $response = $this->actingAs($authedAdmin)->postJson('/api/subcategories', $requestBody);
+
+    $response->assertCreated()
+        ->assertExactJsonStructure([
+            'message',
+            'data' => self::SUBCATEGORY_RESOURCE_KEYS,
+        ])
+        ->assertJsonFragment(['message' => 'SUCCESS: Create Subcategory']);
+
+    $this->assertAuthenticated()->assertDatabaseHas('sub_categories', $requestBody);
+});

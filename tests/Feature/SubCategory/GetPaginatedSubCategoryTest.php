@@ -44,7 +44,10 @@ test('admins can fetch categories', function () {
     $response->assertOk()
         ->assertExactJsonStructure([
             'message',
-            'data' => ['*' => self::SUBCATEGORY_RESOURCE_KEYS],
+            'data' => ['*' => [
+                ...self::SUBCATEGORY_RESOURCE_KEYS,
+                'category' => self::CATEGORY_RESOURCE_KEYS,
+            ]],
             ...self::PAGINATION_KEYS,
         ])
         ->assertJsonFragment(['message' => 'SUCCESS: Get Subcategories'])

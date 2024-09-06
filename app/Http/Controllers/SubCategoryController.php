@@ -7,6 +7,7 @@ use App\Http\Requests\SubCategory\UpdateSubCategoryRequest;
 use App\Http\Resources\SubCategoryResource;
 use App\Models\SubCategory;
 use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class SubCategoryController extends Controller
 {
@@ -27,7 +28,15 @@ class SubCategoryController extends Controller
      */
     public function store(StoreSubCategoryRequest $request)
     {
-        //
+        $subCategory = SubCategory::create([
+            'name' => $request->input('name'),
+            'category_id' => $request->input('category_id'),
+        ]);
+
+        return response([
+            'data' => new SubCategoryResource($subCategory),
+            'message' => 'SUCCESS: Create Subcategory',
+        ], Response::HTTP_CREATED);
     }
 
     /**

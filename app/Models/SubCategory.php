@@ -12,6 +12,11 @@ class SubCategory extends Model
 
     protected $perPage = 10;
 
+    protected $fillable = [
+        'name',
+        'category_id',
+    ];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
