@@ -31,6 +31,11 @@ class SubCategoryPolicy
         return $user->isAdmin();
     }
 
+    public function updateAny(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
     /**
      * Determine whether the user can update the model.
      */

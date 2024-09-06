@@ -42,7 +42,7 @@ class SubCategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SubCategory $subCategory)
+    public function show(SubCategory $subcategory)
     {
         //
     }
@@ -50,15 +50,24 @@ class SubCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSubCategoryRequest $request, SubCategory $subCategory)
+    public function update(UpdateSubCategoryRequest $request, SubCategory $subcategory)
     {
-        //
+
+        $subcategory = tap($subcategory)->update([
+            'name' => $request->input('name'),
+            'category_id' => $request->input('category_id'),
+        ]);
+
+        return response([
+            'data' => new SubCategoryResource($subcategory),
+            'message' => 'SUCCESS: Update Subcategory',
+        ], Response::HTTP_OK);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SubCategory $subCategory)
+    public function destroy(SubCategory $subcategory)
     {
         //
     }
