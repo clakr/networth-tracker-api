@@ -12,6 +12,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('users', UserController::class);
+
+    Route::get('categories/all', [CategoryController::class, 'fetchAll']);
     Route::apiResource('categories', CategoryController::class);
+
     Route::apiResource('subcategories', SubCategoryController::class);
 });

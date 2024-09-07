@@ -79,4 +79,12 @@ class CategoryController extends Controller
             'message' => 'SUCCESS: Delete Category',
         ], Response::HTTP_OK);
     }
+
+    public function fetchAll()
+    {
+        Gate::authorize('viewAny', Category::class);
+
+        return CategoryResource::collection(Category::all())
+            ->additional(['message' => 'SUCCESS: Get All Categories']);
+    }
 }
