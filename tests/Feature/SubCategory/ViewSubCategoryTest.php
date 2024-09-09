@@ -50,7 +50,10 @@ test('admins can view sub categories', function () {
 
     $response->assertOk()
         ->assertExactJsonStructure([
-            'data' => self::SUBCATEGORY_RESOURCE_KEYS,
+            'data' => [
+                ...self::SUBCATEGORY_RESOURCE_KEYS,
+                'category' => self::CATEGORY_RESOURCE_KEYS,
+            ],
             'message',
         ])
         ->assertJsonFragment(['message' => 'SUCCESS: Get Subcategory']);

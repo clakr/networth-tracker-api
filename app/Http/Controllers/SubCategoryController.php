@@ -46,8 +46,10 @@ class SubCategoryController extends Controller
     {
         Gate::authorize('view', SubCategory::class);
 
+        $subCategory = $subcategory->load('category');
+
         return response([
-            'data' => new SubCategoryResource($subcategory),
+            'data' => new SubCategoryResource($subCategory),
             'message' => 'SUCCESS: Get Subcategory',
         ], Response::HTTP_OK);
     }
