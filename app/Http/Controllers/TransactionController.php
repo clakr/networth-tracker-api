@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transaction;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Http\Resources\TransactionResource;
+use App\Models\Transaction;
 
 class TransactionController extends Controller
 {
@@ -13,15 +14,9 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $transactions = request()->user()->transactions()->paginate();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return TransactionResource::collection($transactions)->additional(['message' => 'SUCCESS: Get Transactions']);
     }
 
     /**
@@ -36,14 +31,6 @@ class TransactionController extends Controller
      * Display the specified resource.
      */
     public function show(Transaction $transaction)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Transaction $transaction)
     {
         //
     }

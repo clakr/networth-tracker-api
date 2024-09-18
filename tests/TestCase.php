@@ -58,4 +58,12 @@ abstract class TestCase extends BaseTestCase
         'createdAt',
         'updatedAt',
     ];
+
+    const TRANSACTION_RESOURCE_KEYS = [
+        'id',
+        'amount',
+        'description',
+        'createdAt',
+        'updatedAt',
+    ];
 }
