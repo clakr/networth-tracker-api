@@ -22,8 +22,8 @@ class StoreSubCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name' => ['required', 'string'],
-            'category_id' => ['required', 'integer', 'exists:App\Models\Category,id'],
         ];
     }
 }

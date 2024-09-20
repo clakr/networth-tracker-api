@@ -19,8 +19,8 @@ test('unauthenticated users cannot create sub categories', function () {
         ->make();
 
     $response = $this->postJson('/api/subcategories', [
-        'name' => $subCategoryData->name,
         'category_id' => $subCategoryData->category_id,
+        'name' => $subCategoryData->name,
     ]);
 
     $response->assertUnauthorized();
@@ -36,8 +36,8 @@ test('users cannot create sub categories', function () {
         ->make();
 
     $response = $this->actingAs($authedUser)->postJson('/api/subcategories', [
-        'name' => $subCategoryData->name,
         'category_id' => $subCategoryData->category_id,
+        'name' => $subCategoryData->name,
     ]);
 
     $response->assertForbidden();
@@ -65,8 +65,8 @@ test('cannot create sub categories with invalid category id', function () {
     $subCategoryData = SubCategory::factory()->make();
 
     $response = $this->actingAs($authedAdmin)->postJson('/api/subcategories', [
-        'name' => $subCategoryData->name,
         'category_id' => 0,
+        'name' => $subCategoryData->name,
     ]);
 
     $response->assertJsonValidationErrorFor('category_id');
@@ -84,8 +84,8 @@ test('admins can create sub categories', function () {
         ->make();
 
     $requestBody = [
-        'name' => $subCategoryData->name,
         'category_id' => $subCategoryData->category_id,
+        'name' => $subCategoryData->name,
     ];
 
     $response = $this->actingAs($authedAdmin)->postJson('/api/subcategories', $requestBody);

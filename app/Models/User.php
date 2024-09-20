@@ -18,7 +18,7 @@ class User extends Authenticatable
     protected $perPage = 10;
 
     /**
-     * The attributes that are mass assignable.
+     * the attributes that are mass assignable.
      *
      * @var array<int, string>
      */
@@ -60,6 +60,11 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role->value === UserRole::ADMIN->value;
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role->value === UserRole::USER->value;
     }
 
     public function transactions(): HasMany

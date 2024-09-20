@@ -12,6 +12,18 @@ class Transaction extends Model
 
     protected $perPage = 10;
 
+    /**
+     * the attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'category_id',
+        'amount',
+        'description',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

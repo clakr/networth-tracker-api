@@ -9,6 +9,7 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class TransactionController extends Controller
 {
@@ -36,7 +37,17 @@ class TransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request)
     {
-        //
+        $transaction = Transaction::create([
+            'user_id' => $request->input('user_id'),
+            'category_id' => $request->input('category_id'),
+            'amount' => $request->input('amount'),
+            'description' => $request->input('description'),
+        ]);
+
+        return response([
+            'data' => new TransactionResource($transaction),
+            'message' => 'SUCCESS: Create Transaction',
+        ], Response::HTTP_CREATED);
     }
 
     /**

@@ -11,7 +11,7 @@ class StoreTransactionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->isUser();
     }
 
     /**
@@ -22,7 +22,10 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'amount' => ['required', 'integer'],
+            'description' => ['nullable', 'string'],
         ];
     }
 }
