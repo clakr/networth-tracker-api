@@ -13,7 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('updateAny', User::class);
+        return $this->user()->isAdmin();
     }
 
     /**

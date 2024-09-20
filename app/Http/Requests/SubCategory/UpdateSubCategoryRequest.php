@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\SubCategory;
 
-use App\Models\SubCategory;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSubCategoryRequest extends FormRequest
@@ -12,7 +11,7 @@ class UpdateSubCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('updateAny', SubCategory::class);
+        return $this->user()->isAdmin();
     }
 
     /**

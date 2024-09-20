@@ -24,7 +24,7 @@ class TransactionController extends Controller
 
         $user = User::findOrFail($userId);
 
-        Gate::authorize('viewOwn', $user);
+        Gate::allowIf(fn (User $authedUser) => $authedUser->id === $user->id);
 
         $transactions = $user->transactions()->paginate();
 

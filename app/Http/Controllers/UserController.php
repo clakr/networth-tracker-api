@@ -16,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', User::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         return UserResource::collection(User::paginate())->additional(['message' => 'SUCCESS: Get Users']);
     }
@@ -44,10 +44,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        Gate::authorize('view', [
-            User::class,
-            $user,
-        ]);
+        Gate::allowIf(fn (User $authedUser) => $authedUser->isAdmin() || $authedUser->id === $user->id);
 
         return response([
             'data' => new UserResource($user),
@@ -77,10 +74,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        Gate::authorize('delete', [
-            User::class,
-            $user,
-        ]);
+        Gate::allowIf(fn (User $authedUser) => $authedUser->isAdmin() && $authedUser->id !== $user->id);
 
         $user->delete();
 

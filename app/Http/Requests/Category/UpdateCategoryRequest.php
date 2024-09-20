@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Category;
 
 use App\Enums\CategoryType;
-use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCategoryRequest extends FormRequest
@@ -13,7 +12,7 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('updateAny', Category::class);
+        return $this->user()->isAdmin();
     }
 
     /**

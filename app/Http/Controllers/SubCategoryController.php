@@ -6,6 +6,7 @@ use App\Http\Requests\SubCategory\StoreSubCategoryRequest;
 use App\Http\Requests\SubCategory\UpdateSubCategoryRequest;
 use App\Http\Resources\SubCategoryResource;
 use App\Models\SubCategory;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,7 +17,7 @@ class SubCategoryController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', SubCategory::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         $subCategories = SubCategory::with('category')->paginate();
 
@@ -44,7 +45,7 @@ class SubCategoryController extends Controller
      */
     public function show(SubCategory $subcategory)
     {
-        Gate::authorize('view', SubCategory::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         $subCategory = $subcategory->load('category');
 
@@ -76,7 +77,7 @@ class SubCategoryController extends Controller
      */
     public function destroy(SubCategory $subcategory)
     {
-        Gate::authorize('delete', SubCategory::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         $subcategory->delete();
 

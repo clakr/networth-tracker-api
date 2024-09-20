@@ -6,6 +6,7 @@ use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', Category::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         return CategoryResource::collection(Category::paginate())->additional(['message' => 'SUCCESS: Get Categories']);
     }
@@ -42,7 +43,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        Gate::authorize('view', Category::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         return response([
             'data' => new CategoryResource($category),
@@ -71,7 +72,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        Gate::authorize('delete', Category::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         $category->delete();
 
@@ -82,7 +83,7 @@ class CategoryController extends Controller
 
     public function fetchAll()
     {
-        Gate::authorize('viewAny', Category::class);
+        Gate::allowIf(fn (User $user) => $user->isAdmin());
 
         return CategoryResource::collection(Category::all())
             ->additional(['message' => 'SUCCESS: Get All Categories']);
