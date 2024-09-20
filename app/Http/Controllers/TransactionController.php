@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\MissingUserQueryParametersException;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 
 class TransactionController extends Controller
 {
@@ -14,7 +17,16 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = request()->user()->transactions()->paginate();
+        $userId = request()->query('user');
+        if (! $userId) {
+            throw new MissingUserQueryParametersException;
+        }
+
+        $user = User::findOrFail($userId);
+
+        Gate::authorize('viewOwn', $user);
+
+        $transactions = $user->transactions()->paginate();
 
         return TransactionResource::collection($transactions)->additional(['message' => 'SUCCESS: Get Transactions']);
     }
